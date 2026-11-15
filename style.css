@@ -1,0 +1,44 @@
+:root { color-scheme: light; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #243b35; background: #f3f6f1; line-height: 1.7; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 700px; margin: auto; padding: 36px 20px calc(32px + env(safe-area-inset-bottom)); }
+header { padding: 8px 4px 22px; }
+.eyebrow { color: #176b58; font-size: 12px; font-weight: 800; letter-spacing: .14em; }
+.badge { margin-left: 12px; border: 1px solid #c0d5c9; border-radius: 20px; padding: 4px 10px; font-size: 11px; white-space: nowrap; }
+h1 { font-size: clamp(29px, 6vw, 40px); line-height: 1.45; letter-spacing: .03em; margin: 20px 0 12px; }
+header p, .hint, footer { color: #55665e; }
+header p { font-size: 14px; }
+.card { background: #fff; border: 1px solid #dbe4dc; border-radius: 20px; padding: 24px; margin-bottom: 18px; box-shadow: 0 4px 16px #203c3005; }
+h2 { font-size: 14px; margin: 0 0 18px; color: #176b58; }
+.section-top { display: flex; justify-content: space-between; gap: 12px; }
+#question-number { color: #67756d; font-size: 13px; }
+.question { font-size: clamp(23px, 5vw, 29px); font-weight: 650; line-height: 1.5; margin: 4px 0 24px; }
+button { font: inherit; font-size: 15px; font-weight: 650; min-height: 48px; padding: 11px 16px; border: 1px solid transparent; border-radius: 12px; cursor: pointer; background: #176b58; color: #fff; touch-action: manipulation; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:not(:disabled):hover { filter: brightness(.94); }
+button:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 3px solid #db9c36; outline-offset: 3px; }
+.secondary { background: #eaf3ee; color: #176b58; }
+.quiet { background: transparent; color: #365d4e; border-color: #dbe4dc; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.actions button { flex: 1; }
+.hint { font-size: 13px; margin: 12px 0 0; }
+.mode-switch { display: flex; gap: 4px; background: #eef2ed; padding: 5px; border-radius: 15px; margin-bottom: 20px; }
+.mode-switch button { flex: 1; background: transparent; color: #52655a; }
+.mode-switch button[aria-pressed="true"] { background: #fff; color: #176b58; box-shadow: 0 2px 6px #203c3012; }
+.instruction { font-size: 14px; }
+label { display: block; font-size: 14px; font-weight: 650; margin: 16px 0 8px; }
+label span { color: #67756d; font-weight: 400; }
+textarea { display: block; width: 100%; min-height: 170px; resize: vertical; padding: 14px; font: inherit; font-size: 18px; line-height: 1.6; border: 1px solid #bdcec2; border-radius: 12px; background: #fcfdfb; color: #243b35; scroll-margin: 20px; }
+.note { border-left: 3px solid #d9ac54; padding: 8px 12px; background: #fff9ed; font-size: 13px; }
+.record-display { display: flex; align-items: center; gap: 10px; padding: 20px 0; font-size: 13px; }
+#record-indicator { width: 10px; height: 10px; border-radius: 50%; background: #a9b7ac; flex-shrink: 0; }
+#record-indicator.active { background: #c34343; }
+#timer { margin-left: auto; font-size: 25px; font-variant-numeric: tabular-nums; }
+audio { width: 100%; display: block; margin-bottom: 12px; }
+summary { font-size: 14px; font-weight: 650; cursor: pointer; min-height: 32px; }
+ul { padding-left: 20px; font-size: 13px; }
+li + li { margin-top: 10px; }
+footer { padding: 8px 6px; font-size: 12px; }
+footer strong { color: #365d4e; }
+[hidden] { display: none !important; }
+@media (max-width: 400px) { main { padding: 22px 14px; } .card { padding: 20px 16px; } button { padding: 11px 12px; } }

@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="theme-color" content="#176b58">
+  <title>English Voice Lab | 音声チェック</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<main>
+  <header><span class="eyebrow">ENGLISH VOICE LAB</span><span class="badge">機能検証版</span>
+    <h1>声に出して、<br>英語をためそう。</h1>
+    <p>英検2級の面接練習に向けた音声チェック。<br>まずは、短い回答ひとつから。</p>
+  </header>
+  <section class="card" aria-labelledby="question-heading">
+    <div class="section-top"><h2 id="question-heading">01 / 質問を聞く</h2><span id="question-number">1 / 2</span></div>
+    <p id="question" class="question" lang="en">What do you usually do after school?</p>
+    <div class="actions"><button id="speak" class="secondary">質問を読み上げる</button><button id="next" class="quiet">次の質問 →</button></div>
+    <p id="speech-status" class="hint" role="status">英語音声で質問を聞けます。</p>
+  </section>
+  <section class="card" aria-labelledby="practice-heading">
+    <h2 id="practice-heading">02 / 回答をためす</h2>
+    <div class="mode-switch" role="group" aria-label="練習モード">
+      <button id="text-mode" aria-pressed="true">文字で回答</button><button id="record-mode" aria-pressed="false">録音で回答</button>
+    </div>
+    <div id="text-panel">
+      <p class="instruction">入力欄をタップ → キーボードを英語に切り替え → キーボードのマイクをタップ。</p>
+      <label for="answer">あなたの回答 <span lang="en">/ Your answer</span></label>
+      <textarea id="answer" lang="en-US" inputmode="text" autocapitalize="sentences" autocomplete="off" spellcheck="true" rows="5" placeholder="I usually…" aria-describedby="answer-help"></textarea>
+      <p id="answer-help" class="hint">入力された英文は自由に修正できます。アプリからキーボードの言語や音声入力の開始は操作できません。</p>
+      <p class="note">録音へ進む前に、キーボードの音声入力を終了してください。</p>
+    </div>
+    <div id="record-panel" hidden>
+      <p class="instruction">キーボードの音声入力を終了し、録音を開始。英語で答えてから停止し、自分の声を聞きましょう。</p>
+      <p id="record-support" class="hint"></p>
+      <div class="record-display"><span id="record-indicator" aria-hidden="true"></span><span id="record-state">録音の準備ができました</span><time id="timer">00:00</time></div>
+      <div class="actions"><button id="start">● 録音開始</button><button id="stop" class="secondary" disabled>■ 録音停止</button></div>
+      <p id="record-status" class="hint" role="status">最長2分。録音中は文字入力と読み上げをお休みします。</p>
+      <div id="playback" hidden><label for="audio">録音した回答</label><audio id="audio" controls preload="metadata"></audio><button id="delete" class="quiet">録音を削除</button></div>
+      <p class="hint">録り直すと前の録音を置き換えます。録音は文字起こしされません。</p>
+    </div>
+  </section>
+  <details class="card"><summary>はじめて使うとき・うまく動かないとき</summary>
+    <ul><li>iPhone：「設定」→「一般」→「キーボード」で英語キーボードを追加し、「音声入力」を有効にします。</li><li>録音にはHTTPS（PCではlocalhostも可）とマイクの許可が必要です。許可しなかった場合はSafariのサイト設定で変更してください。</li><li>Chromebookでは英文を直接入力できます。OSの音声入力は、利用できる端末で英語に設定して別途使用してください。</li><li>録音中は画面を開いたままにしてください。別のアプリへの移動や画面ロック時には録音を停止します。着信などの割り込みは実機で確認してください。</li></ul>
+  </details>
+  <footer><strong>このアプリは回答・録音を送信しません。</strong><p>回答と録音はこのページ内だけで扱い、保存機能はありません。再読み込みで消えます。OSの音声入力は別機能で、処理方法は端末・言語・設定によって異なります。完全な端末内処理はアプリから保証できません。読み上げには端末内の英語音声だけを使用します。</p></footer>
+  <noscript>このアプリを使うにはJavaScriptを有効にしてください。</noscript>
+</main>
+</body>
+</html>

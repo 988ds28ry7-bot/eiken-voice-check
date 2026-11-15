@@ -1,0 +1,9 @@
+# Only these reviewed files belong in this small static site.
+# This does not protect files manually uploaded through the GitHub website.
+*
+!/.gitignore
+!/.nojekyll
+!/index.html
+!/style.css
+!/app.js
+!/README.md
