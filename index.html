@@ -1,53 +1,36 @@
 <!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; media-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <meta name="theme-color" content="#176b58">
-  <title>English Voice Lab | 音声チェック</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="app.js" defer></script>
-</head>
-<body>
-<main>
-  <header><span class="eyebrow">ENGLISH VOICE LAB</span><span class="badge">機能検証版</span>
-    <h1>声に出して、<br>英語をためそう。</h1>
-    <p>英検2級の面接練習に向けた音声チェック。<br>まずは、短い回答ひとつから。</p>
-  </header>
-  <section class="card" aria-labelledby="question-heading">
-    <div class="section-top"><h2 id="question-heading">01 / 質問を聞く</h2><span id="question-number">1 / 2</span></div>
-    <p id="question" class="question" lang="en">What do you usually do after school?</p>
-    <div class="actions"><button id="speak" class="secondary">質問を読み上げる</button><button id="next" class="quiet">次の質問 →</button></div>
-    <p id="speech-status" class="hint" role="status">英語音声で質問を聞けます。</p>
-  </section>
-  <section class="card" aria-labelledby="practice-heading">
-    <h2 id="practice-heading">02 / 回答をためす</h2>
-    <div class="mode-switch" role="group" aria-label="練習モード">
-      <button id="text-mode" aria-pressed="true">文字で回答</button><button id="record-mode" aria-pressed="false">録音で回答</button>
-    </div>
-    <div id="text-panel">
-      <p class="instruction">入力欄をタップ → キーボードを英語に切り替え → キーボードのマイクをタップ。</p>
-      <label for="answer">あなたの回答 <span lang="en">/ Your answer</span></label>
-      <textarea id="answer" lang="en-US" inputmode="text" autocapitalize="sentences" autocomplete="off" spellcheck="true" rows="5" placeholder="I usually…" aria-describedby="answer-help"></textarea>
-      <p id="answer-help" class="hint">入力された英文は自由に修正できます。アプリからキーボードの言語や音声入力の開始は操作できません。</p>
-      <p class="note">録音へ進む前に、キーボードの音声入力を終了してください。</p>
-    </div>
-    <div id="record-panel" hidden>
-      <p class="instruction">キーボードの音声入力を終了し、録音を開始。英語で答えてから停止し、自分の声を聞きましょう。</p>
-      <p id="record-support" class="hint"></p>
-      <div class="record-display"><span id="record-indicator" aria-hidden="true"></span><span id="record-state">録音の準備ができました</span><time id="timer">00:00</time></div>
-      <div class="actions"><button id="start">● 録音開始</button><button id="stop" class="secondary" disabled>■ 録音停止</button></div>
-      <p id="record-status" class="hint" role="status">最長2分。録音中は文字入力と読み上げをお休みします。</p>
-      <div id="playback" hidden><label for="audio">録音した回答</label><audio id="audio" controls preload="metadata"></audio><button id="delete" class="quiet">録音を削除</button></div>
-      <p class="hint">録り直すと前の録音を置き換えます。録音は文字起こしされません。</p>
-    </div>
-  </section>
-  <details class="card"><summary>はじめて使うとき・うまく動かないとき</summary>
-    <ul><li>iPhone：「設定」→「一般」→「キーボード」で英語キーボードを追加し、「音声入力」を有効にします。</li><li>録音にはHTTPS（PCではlocalhostも可）とマイクの許可が必要です。許可しなかった場合はSafariのサイト設定で変更してください。</li><li>Chromebookでは英文を直接入力できます。OSの音声入力は、利用できる端末で英語に設定して別途使用してください。</li><li>録音中は画面を開いたままにしてください。別のアプリへの移動や画面ロック時には録音を停止します。着信などの割り込みは実機で確認してください。</li></ul>
-  </details>
-  <footer><strong>このアプリは回答・録音を送信しません。</strong><p>回答と録音はこのページ内だけで扱い、保存機能はありません。再読み込みで消えます。OSの音声入力は別機能で、処理方法は端末・言語・設定によって異なります。完全な端末内処理はアプリから保証できません。読み上げには端末内の英語音声だけを使用します。</p></footer>
-  <noscript>このアプリを使うにはJavaScriptを有効にしてください。</noscript>
-</main>
-</body>
-</html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#176b58"><meta name="description" content="英検2級の面接を一人で練習。オリジナル5セット、録音、模範解答、端末内の復習履歴。">
+<title>英検2級 面接ノート</title><link rel="stylesheet" href="style.css">
+<script src="data.js" defer></script><script src="illustrations.js" defer></script><script src="core.js" defer></script><script src="app.js" defer></script><script src="audio.js" defer></script>
+</head><body><main>
+<header class="app-header"><a href="#" id="brand">面接ノート <span>英検2級</span></a><button id="history-nav" class="quiet">復習・履歴</button></header>
+<p id="storage-status" class="notice" role="status"></p>
+<section id="home">
+<div class="hero"><span class="eyebrow">ONE QUESTION AT A TIME</span><h1>ひとつずつ、<br>自分の言葉で。</h1><p>話して、聞き返して、少しずつ。<br>今日の面接練習をはじめよう。</p><span class="pill">オリジナル5セット・自動採点なし</span></div>
+<div class="card"><h2>今日の練習を選ぶ</h2><label for="set-select">問題セット</label><select id="set-select"></select><label for="practice-select">練習モード</label><select id="practice-select"><option value="mock">模擬面接：入室から振り返りまで</option><option value="q1">No.1：本文の内容</option><option value="q2">No.2：3コマの説明</option><option value="opinion">No.3・4：自分の意見</option></select><p class="hint">模擬面接の本番目安は約7分。練習は自分のペースで進められます。</p><button id="begin" class="wide">練習をはじめる →</button><button id="resume" class="secondary wide" hidden>途中の練習を再開</button></div>
+<div class="card"><h2>練習の流れ</h2><p class="flow">挨拶 → 黙読20秒 → 音読 → No.1<br>→ 準備20秒 → No.2 → カードを裏返す<br>→ No.3・4 → 振り返り</p><p class="hint">録音・文字入力は自宅練習用です。本番ではメモ・録音・撮影は禁止されています。</p></div>
+</section>
+<section id="practice" hidden>
+<div class="section-top"><span id="progress-text"></span><button id="leave" class="quiet">中断してホームへ</button></div><progress id="progress" max="1" value="0" aria-label="練習の進み具合"></progress>
+<div class="card"><span class="eyebrow" id="stage-label"></span><h1 id="stage-title" tabindex="-1"></h1><p id="instruction"></p><p id="prompt" class="question" lang="en"></p><div id="greeting-example" class="note" hidden></div><button id="speak" class="secondary">面接官の英語を聞く</button><p id="speech-status" class="hint" role="status"></p>
+<div id="countdown-box" hidden><strong id="countdown">20</strong><span>秒</span><button id="timer-start">20秒を開始</button><p id="timer-status" role="status">説明を確認してから開始してください。</p></div>
+<div id="branch" hidden><p>まず Yes / No を答え、続く質問に理由を述べましょう。</p><div class="actions"><button id="yes" class="secondary" aria-pressed="false">Yes</button><button id="no" class="secondary" aria-pressed="false">No</button></div></div>
+</div>
+<section id="question-card" class="card" aria-label="問題カード"><div class="section-top"><span class="eyebrow">QUESTION CARD</span><span>オリジナル教材</span></div><h2 id="passage-title" lang="en"></h2><p id="passage" class="passage" lang="en"></p><div id="illustrations" class="illustrations"></div><p class="hint">Begin your story with this sentence:</p><p id="opening" lang="en"></p></section>
+<div id="card-back" class="card card-back" hidden>問題カードは裏返しました。<br><small>ここからは自分の考えを話しましょう。</small></div>
+<section id="answer-area" class="card" hidden><h2>あなたの回答</h2>
+<div class="mode-switch" role="group" aria-label="回答方法"><button id="text-mode" aria-pressed="true">文字・音声入力</button><button id="record-mode" aria-pressed="false">録音で回答</button></div>
+<div id="text-panel"><label for="answer">英文回答・復習メモ</label><textarea id="answer" lang="en-US" rows="5" maxlength="5000" inputmode="text" autocapitalize="sentences" autocomplete="off" spellcheck="true" placeholder="I think…"></textarea><p class="hint">iPhone：英語キーボードに切り替え、キーボードのマイクで音声入力できます。英文は修正できます。録音へ移る前に音声入力を終了してください。</p></div>
+<div id="record-panel" hidden><p class="instruction">キーボードの音声入力を終了してから録音します。</p><p id="record-support" class="hint"></p><div class="record-display"><span id="record-indicator" aria-hidden="true"></span><span id="record-state"></span><time id="timer">00:00</time></div><div class="actions"><button id="start">● 録音開始</button><button id="stop" class="secondary" disabled>■ 録音停止</button></div><p id="record-status" role="status" class="hint">録音は最長2分。音声は練習中だけ保持し、履歴には保存しません。</p><div id="playback" hidden><audio id="audio" controls preload="metadata"></audio><button id="delete" class="quiet">この録音を削除</button></div></div>
+<p class="hint">録音は自動で文字になりません。残したい内容は文字欄にも入力してください。</p></section>
+<button id="next" class="wide">次へ →</button>
+</section>
+<section id="review" hidden><span class="eyebrow">LOOK BACK & TRY AGAIN</span><h1 tabindex="-1" id="review-heading">今日の振り返り</h1><p>模範解答は一例です。自分の意見と理由を伝えられたか確認しましょう。自己評価は合否や公式の点数ではありません。</p><div id="review-items"></div><button id="finish" class="wide">振り返りを保存してホームへ</button></section>
+<section id="history" hidden><h1 tabindex="-1" id="history-heading">復習ノート</h1><label class="check"><input id="weak-only" type="checkbox">苦手印のある練習だけ表示</label><div id="history-items"></div><div class="card"><h2>学習データのバックアップ</h2><p>回答文・自己評価・苦手印をJSONファイルに保存します。音声は含みません。別の端末への移動にも使えます。</p><button id="export" class="secondary">データをエクスポート</button><label for="import-file">バックアップをインポート（追加・重複は現在の履歴を優先）</label><input type="file" id="import-file" accept=".json,application/json"><p id="transfer-status" role="status" class="hint"></p><p class="note">ブラウザのデータ削除、端末の容量不足、プライベートモードなどで保存内容が消えることがあります。定期的にバックアップしてください。ファイルには自分の回答が入るため、GitHubへアップロードしないでください。</p></div><button id="history-home" class="wide">ホームへ戻る</button></section>
+<details class="card help"><summary>使い方・音声・保存について</summary><ul><li>非公式の練習アプリです。問題・図はすべて独自作成で、公式の過去問ではありません。</li><li>録音はHTTPSとマイクの許可が必要です。対応しない場合は文字入力や声に出すだけでも練習できます。</li><li>読み上げは端末内の英語音声のみ。使えなければ画面の英文を読んでください。</li><li>録音中は画面を開いたままにしてください。別画面に移ると録音を停止します。</li><li>回答・評価・苦手印はこの端末のブラウザ内に保存します。別端末には自動同期されません。</li><li>OSの音声入力は別機能で、処理場所は端末・設定によります。完全な端末内処理は保証できません。</li><li>本名や連絡先は入力しなくて構いません。挨拶の名前は架空のもので練習できます。</li></ul></details>
+<footer>回答・録音をサーバーへ送信しません。広告・分析・AI採点なし。<br><a href="https://www.eiken.or.jp/eiken/exam/grade_2/solutions.html" target="_blank" rel="noopener noreferrer">日本英語検定協会の公式試験案内</a>（形式確認：2026年11月15日）</footer>
+<noscript>JavaScriptを有効にしてご利用ください。</noscript>
+</main></body></html>

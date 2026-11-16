@@ -6,4 +6,11 @@
 !/index.html
 !/style.css
 !/app.js
+!/audio.js
+!/data.js
+!/illustrations.js
+!/core.js
 !/README.md
+!/server.cjs
+!/test.cjs
+!/flow-test.cjs
