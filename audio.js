@@ -10,6 +10,10 @@
   let utterance = null;
   let speechWatchdog = null;
   const synth = window.speechSynthesis;
+  const examinerAudio = $("examiner-audio");
+  let preparedText = "";
+  let playbackToken = 0;
+  const bundledSource = text => Object.hasOwn(window.SPEECH_ASSETS || {}, text) ? window.SPEECH_ASSETS[text] : null;
   const canRecord = window.isSecureContext && !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== "undefined";
   const status = (message) => { $("record-status").textContent = message; };
   const speechSupported = !!synth && typeof SpeechSynthesisUtterance !== "undefined";
@@ -28,23 +32,56 @@
     }
     if (available.some(v => voiceKey(v) === selected)) $("speech-voice").value = selected;
     $("speech-voice").disabled = !available.length || phase !== "idle";
-    for (const id of ["speak", "speech-test", "speech-refresh"]) $(id).disabled = !speechSupported || phase !== "idle";
+    $("speak").disabled = phase !== "idle" || (!bundledSource(window.InterviewApp.prompt()) && !speechSupported);
+    $("speech-test").disabled = phase !== "idle" || (!bundledSource("Hello. Let's practice English together.") && !speechSupported);
+    $("speech-refresh").disabled = !speechSupported || phase !== "idle";
+    examinerAudio.controls = phase === "idle";
     if (utterance) return;
-    if (!speechSupported) $("speech-status").textContent = "このブラウザは読み上げに対応していません。表示された英文で練習してください。";
+    if (bundledSource(window.InterviewApp.prompt())) $("speech-status").textContent = "同梱の英語音声を再生します。ボタン、または音声プレーヤーの▶を押してください。";
+    else if (!speechSupported) $("speech-status").textContent = "このブラウザは読み上げに対応していません。表示された英文で練習してください。";
     else if (!available.length) $("speech-status").textContent = voices().length
       ? "利用できる端末内の英語音声がありません。「読み上げの設定」を開き、英語の音声合成を追加してください。追加後はブラウザを開き直して音声一覧を再確認してください。"
       : "音声一覧をまだ取得できていません。「面接官の英語を聞く」を押すと再確認します。繰り返す場合は「読み上げの設定」を確認してください。";
     else $("speech-status").textContent = "端末内の英語音声を選択できます。音声入力を終了してから読み上げボタンを押してください。";
   }
   function cancelSpeech() {
+    ++playbackToken;
+    examinerAudio.pause();
     clearTimeout(speechWatchdog);
     const wasActive = utterance || synth?.speaking || synth?.pending;
     utterance = null;
     if (synth && wasActive) synth.cancel();
   }
+  function prepareSpeech(text) {
+    const source = bundledSource(text);
+    if (preparedText !== text) {
+      cancelSpeech();
+      preparedText = text;
+      if (source) examinerAudio.src = source;
+      else examinerAudio.removeAttribute("src");
+      examinerAudio.load();
+    }
+    examinerAudio.hidden = !source;
+    updateSpeech();
+  }
   function speakText(text) {
-    if (!speechSupported || phase !== "idle") return;
+    if (phase !== "idle") return;
     cancelSpeech();
+    if (bundledSource(text)) {
+      prepareSpeech(text);
+      $("answer").blur();
+      $("audio").pause();
+      examinerAudio.currentTime = 0;
+      const token = playbackToken;
+      $("speech-status").textContent = "音声ファイルを読み込んでいます…";
+      const failed = error => {
+        if (token !== playbackToken) return;
+        $("speech-status").textContent = `音声を再生できません（${error.name || "再生エラー"}）。下のプレーヤーの▶もお試しください。公開先にassets/audioフォルダーがあるか確認してください。`;
+      };
+      try { examinerAudio.play()?.catch(failed); } catch (error) { failed(error); }
+      return;
+    }
+    if (!speechSupported) { updateSpeech(); return; }
     updateSpeech(); // Re-query on the user gesture even if voiceschanged never fired.
     const available = localEnglishVoices();
     const voice = available.find(v => voiceKey(v) === $("speech-voice").value) || available[0];
@@ -222,6 +259,19 @@
   $("speech-test").addEventListener("click", () => speakText("Hello. Let's practice English together."));
   $("speech-refresh").addEventListener("click", () => { if (phase === "idle") { cancelSpeech(); updateSpeech(); } });
   $("speech-voice").addEventListener("change", cancelSpeech);
+  examinerAudio.addEventListener("play", () => {
+    if (phase !== "idle") { examinerAudio.pause(); return; }
+    $("audio").pause();
+    // Do not call cancelSpeech here: it would pause this player too.
+    clearTimeout(speechWatchdog); utterance = null;
+    if (synth?.speaking || synth?.pending) synth.cancel();
+  });
+  examinerAudio.addEventListener("playing", () => { $("speech-status").textContent = "英語音声を再生中です。聞こえない場合は端末の音量・出力先を確認してください。"; });
+  examinerAudio.addEventListener("ended", () => { $("speech-status").textContent = "再生が終了しました。もう一度聞く場合はボタンを押してください。"; });
+  examinerAudio.addEventListener("error", () => {
+    if (examinerAudio.hidden) return;
+    $("speech-status").textContent = "音声ファイルを読み込めません。assets/audioの33ファイルを公開先にも配置してください。通信状態も確認してください。";
+  });
   $("answer").addEventListener("focus", cancelSpeech);
   $("audio").addEventListener("play", () => { cancelSpeech(); if (phase !== "idle") $("audio").pause(); });
   $("audio").addEventListener("error", () => status("音声を再生できませんでした。録り直すか、別のブラウザでお試しください。"));
@@ -230,6 +280,7 @@
   synth?.addEventListener("voiceschanged", updateSpeech);
   $("record-support").textContent = canRecord ? "録音機能を利用できます（実際の録音にはマイクの許可が必要です）。" : !window.isSecureContext ? "録音にはHTTPSが必要です。Windowsでは http://localhost:8000 でも確認できます。" : "このブラウザは録音機能に対応していません。文字での回答をご利用ください。";
   window.VoiceLab = {
+    prepare: prepareSpeech,
     busy: () => phase !== "idle",
     silence: () => { cancelSpeech(); $("audio").pause(); },
     reset: () => {

@@ -7,6 +7,10 @@
 !/style.css
 !/app.js
 !/audio.js
+!/speech-assets.js
+!/assets/
+!/assets/audio/
+!/assets/audio/*.wav
 !/data.js
 !/illustrations.js
 !/core.js
