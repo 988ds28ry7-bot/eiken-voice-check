@@ -4,9 +4,10 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="theme-color" content="#176b58"><meta name="description" content="英検2級の面接を一人で練習。オリジナル5セット、録音、模範解答、端末内の復習履歴。">
 <title>英検2級 面接ノート</title><link rel="stylesheet" href="style.css">
-<script src="data.js" defer></script><script src="illustrations.js" defer></script><script src="core.js" defer></script><script src="app.js" defer></script><script src="audio.js" defer></script>
+<script src="data.js" defer></script><script src="illustrations.js" defer></script><script src="core.js" defer></script><script src="speech-assets.js?v=20261117-audio2" defer></script><script src="app.js?v=20261117-audio2" defer></script><script src="audio.js?v=20261117-audio2" defer></script>
 </head><body><main>
 <header class="app-header"><a href="#" id="brand">面接ノート <span>英検2級</span></a><button id="history-nav" class="quiet">復習・履歴</button></header>
+<p class="hint">音声ファイル対応版：20261117-audio2</p>
 <p id="storage-status" class="notice" role="status"></p>
 <section id="home">
 <div class="hero"><span class="eyebrow">ONE QUESTION AT A TIME</span><h1>ひとつずつ、<br>自分の言葉で。</h1><p>話して、聞き返して、少しずつ。<br>今日の面接練習をはじめよう。</p><span class="pill">オリジナル5セット・自動採点なし</span></div>
@@ -15,7 +16,8 @@
 </section>
 <section id="practice" hidden>
 <div class="section-top"><span id="progress-text"></span><button id="leave" class="quiet">中断してホームへ</button></div><progress id="progress" max="1" value="0" aria-label="練習の進み具合"></progress>
-<div class="card"><span class="eyebrow" id="stage-label"></span><h1 id="stage-title" tabindex="-1"></h1><p id="instruction"></p><p id="prompt" class="question" lang="en"></p><div id="greeting-example" class="note" hidden></div><button id="speak" class="secondary">面接官の英語を聞く</button><p id="speech-status" class="hint" role="status"></p>
+<div class="card"><span class="eyebrow" id="stage-label"></span><h1 id="stage-title" tabindex="-1"></h1><p id="instruction"></p><p id="prompt" class="question" lang="en"></p><div id="greeting-example" class="note" hidden></div><button id="speak" class="secondary">面接官の英語を聞く</button><p id="speech-status" class="hint" role="status">音声機能を準備中です。この表示が続く場合は公開ファイルの不足・更新漏れを確認してください。</p><audio id="examiner-audio" controls preload="none" hidden aria-label="面接官の英語音声"></audio>
+<details><summary>読み上げの設定・音が出ないとき</summary><label for="speech-voice">追加問題用の端末内英語音声</label><select id="speech-voice"></select><div class="actions"><button id="speech-refresh" class="quiet">音声一覧を再確認</button><button id="speech-test" class="secondary">短い英文でテスト</button></div><p class="hint">現在の5セットは同梱音声ファイルを優先して再生します。下記の音声合成設定は音声ファイルのない追加問題用です。Windows：英語音声がない場合は「設定 → 時刻と言語 → 音声認識」の音声追加、または英語の言語オプションから「音声合成」を追加し、ブラウザを開き直してください。音声が選べるのに聞こえない場合は音量・出力先・タブのミュートを確認してください。外部処理の音声は使用しません。</p></details>
 <div id="countdown-box" hidden><strong id="countdown">20</strong><span>秒</span><button id="timer-start">20秒を開始</button><p id="timer-status" role="status">説明を確認してから開始してください。</p></div>
 <div id="branch" hidden><p>まず Yes / No を答え、続く質問に理由を述べましょう。</p><div class="actions"><button id="yes" class="secondary" aria-pressed="false">Yes</button><button id="no" class="secondary" aria-pressed="false">No</button></div></div>
 </div>
@@ -30,7 +32,7 @@
 </section>
 <section id="review" hidden><span class="eyebrow">LOOK BACK & TRY AGAIN</span><h1 tabindex="-1" id="review-heading">今日の振り返り</h1><p>模範解答は一例です。自分の意見と理由を伝えられたか確認しましょう。自己評価は合否や公式の点数ではありません。</p><div id="review-items"></div><button id="finish" class="wide">振り返りを保存してホームへ</button></section>
 <section id="history" hidden><h1 tabindex="-1" id="history-heading">復習ノート</h1><label class="check"><input id="weak-only" type="checkbox">苦手印のある練習だけ表示</label><div id="history-items"></div><div class="card"><h2>学習データのバックアップ</h2><p>回答文・自己評価・苦手印をJSONファイルに保存します。音声は含みません。別の端末への移動にも使えます。</p><button id="export" class="secondary">データをエクスポート</button><label for="import-file">バックアップをインポート（追加・重複は現在の履歴を優先）</label><input type="file" id="import-file" accept=".json,application/json"><p id="transfer-status" role="status" class="hint"></p><p class="note">ブラウザのデータ削除、端末の容量不足、プライベートモードなどで保存内容が消えることがあります。定期的にバックアップしてください。ファイルには自分の回答が入るため、GitHubへアップロードしないでください。</p></div><button id="history-home" class="wide">ホームへ戻る</button></section>
-<details class="card help"><summary>使い方・音声・保存について</summary><ul><li>非公式の練習アプリです。問題・図はすべて独自作成で、公式の過去問ではありません。</li><li>録音はHTTPSとマイクの許可が必要です。対応しない場合は文字入力や声に出すだけでも練習できます。</li><li>読み上げは端末内の英語音声のみ。使えなければ画面の英文を読んでください。</li><li>録音中は画面を開いたままにしてください。別画面に移ると録音を停止します。</li><li>回答・評価・苦手印はこの端末のブラウザ内に保存します。別端末には自動同期されません。</li><li>OSの音声入力は別機能で、処理場所は端末・設定によります。完全な端末内処理は保証できません。</li><li>本名や連絡先は入力しなくて構いません。挨拶の名前は架空のもので練習できます。</li></ul></details>
+<details class="card help"><summary>使い方・音声・保存について</summary><ul><li>非公式の練習アプリです。問題・図はすべて独自作成で、公式の過去問ではありません。</li><li>録音はHTTPSとマイクの許可が必要です。対応しない場合は文字入力や声に出すだけでも練習できます。</li><li>面接官の音声は同梱ファイルを再生します。追加問題にファイルがなければ端末内の英語音声を使用します。</li><li>録音中は画面を開いたままにしてください。別画面に移ると録音を停止します。</li><li>回答・評価・苦手印はこの端末のブラウザ内に保存します。別端末には自動同期されません。</li><li>OSの音声入力は別機能で、処理場所は端末・設定によります。完全な端末内処理は保証できません。</li><li>本名や連絡先は入力しなくて構いません。挨拶の名前は架空のもので練習できます。</li></ul></details>
 <footer>回答・録音をサーバーへ送信しません。広告・分析・AI採点なし。<br><a href="https://www.eiken.or.jp/eiken/exam/grade_2/solutions.html" target="_blank" rel="noopener noreferrer">日本英語検定協会の公式試験案内</a>（形式確認：2026年11月15日）</footer>
 <noscript>JavaScriptを有効にしてご利用ください。</noscript>
 </main></body></html>
