@@ -39,7 +39,7 @@
   $('answer-area').hidden=!isAnswer;$('answer').value=isAnswer?answer().text:'';$('branch').hidden=st!=='q4';
   for(const choice of ['yes','no'])$(choice).setAttribute('aria-pressed',String(st==='q4'&&answer().choice===choice));
   $('countdown-box').hidden=!timed;$('countdown').textContent='20';$('timer-start').disabled=false;$('timer-status').textContent='説明を確認してから開始してください。';
-  $('next').disabled=timed||(st==='q4'&&!answer().choice);$('next').textContent=st==='close'?'振り返りへ →':'次へ →';$('stage-title').focus();
+  $('next').disabled=timed||(st==='q4'&&!answer().choice);$('next').textContent=st==='close'?'振り返りへ →':'次へ →';window.VoiceLab?.prepare(prompt());$('stage-title').focus();
  }
  function startTimer(){window.VoiceLab?.silence();stopClock();deadline=performance.now()+20000;$('timer-start').disabled=true;$('timer-status').textContent='計測中です。';clock=setInterval(()=>{const remaining=Math.max(0,Math.ceil((deadline-performance.now())/1000));$('countdown').textContent=remaining;if(!remaining){stopClock();$('next').disabled=false;$('timer-status').textContent='20秒経過しました。「次へ」で進んでください。';}},100);}
  function make(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
@@ -67,7 +67,7 @@
  $('resume').addEventListener('click',()=>{active=records.find(r=>!r.complete);if(active)renderStage();});
  $('next').addEventListener('click',()=>{if(busy()||$('next').disabled)return;active.stage++;save();renderStage();});
  $('answer').addEventListener('input',()=>{if(active&&C.answerKeys.includes(stage())){answer().text=$('answer').value;save();}});
- for(const choice of ['yes','no'])$(choice).addEventListener('click',()=>{if(busy())return;window.VoiceLab?.silence();answer().choice=choice;save();for(const ch of ['yes','no'])$(ch).setAttribute('aria-pressed',String(ch===choice));$('prompt').textContent=set().q4.prompt+' '+(choice==='yes'?'Yes. ':'No. ')+set().q4[choice];$('next').disabled=false;});
+ for(const choice of ['yes','no'])$(choice).addEventListener('click',()=>{if(busy())return;window.VoiceLab?.silence();answer().choice=choice;save();for(const ch of ['yes','no'])$(ch).setAttribute('aria-pressed',String(ch===choice));$('prompt').textContent=set().q4.prompt+' '+(choice==='yes'?'Yes. ':'No. ')+set().q4[choice];$('next').disabled=false;window.VoiceLab?.prepare(prompt());});
  $('timer-start').addEventListener('click',startTimer);
  $('leave').addEventListener('click',()=>{if(!busy()){save();home();}});
  $('brand').addEventListener('click',e=>{e.preventDefault();if(!busy()){save();home();}});

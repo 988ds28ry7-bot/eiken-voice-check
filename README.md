@@ -1,6 +1,8 @@
+> 現行版：20261117-audio2。面接官の音声は同梱WAVを優先します。英語音声のインストールは既存5セットでは不要です。GitHub Pagesへの更新は未実施です。
+
 # 英検2級 面接ノート
 
-中学生が一人で、英検2級二次試験の流れと回答を練習するための非公式Webアプリです。既存の音声テストアプリの録音・再生・端末内英語読み上げを土台にしています。公式教材の文章・画像は転載せず、5セットの問題と15コマのSVGイラストを独自作成しました。
+中学生が一人で、英検2級二次試験の流れと回答を練習するための非公式Webアプリです。既存の音声テストアプリの録音・再生・英語読み上げを土台にしています。公式教材の文章・画像は転載せず、5セットの問題と15コマのSVGイラストを独自作成しました。
 
 HTML / CSS / JavaScriptのみ。ログイン、APIキー、外部AI、広告、分析タグ、データベース、サーバー側処理は不要です。GitHub Pagesで配布できます。**この作業ではGitHubへのアップロード・push・公開更新は行っていません。**
 
@@ -40,6 +42,8 @@ style.css        配色、文字サイズ、スマートフォンの縦画面対
 data.js          5セットの本文、質問、模範解答、解説、確認項目
 illustrations.js オリジナルSVGの人物・小物・15コマの描画
 core.js          履歴のデータ形式、インポート検査、画面の順序
+speech-assets.js 面接官の英文と同梱音声ファイルの対応表
+assets/audio/    面接官の音声33ファイル（WAV、合計約8.2MB）
 app.js           練習の進行、タイマー、復習、端末内保存、入出力
 audio.js         既存テストアプリを基にした音声処理
 .nojekyll        GitHub Pagesでそのままファイルを配信する指定
@@ -50,7 +54,7 @@ test.cjs         問題データ、入出力形式などのテスト
 flow-test.cjs    ブラウザAPIを模擬した画面遷移・保存・音声結合テスト
 ```
 
-アプリ本体は先頭7ファイルです。外部ライブラリのインストールやビルドは不要です。`server.cjs` は開発時だけ使用し、GitHub Pages上では実行しません。
+アプリ本体はHTML・CSS・JavaScriptの8ファイルとassets/audioの音声です。外部ライブラリのインストールやビルドは不要です。`server.cjs` は開発時だけ使用し、GitHub Pages上では実行しません。
 
 ## Windowsで起動する
 
@@ -93,14 +97,14 @@ node server.cjs
 
 ### Chromebook Chrome
 
-同じHTTPSのURLで、手入力、録音・再生、端末内英語音声の読み上げを使えます。ChromeOSの音声入力を利用する場合はOS側で別途英語に設定してください。学校管理の端末では、マイクや保存が制限されることがあります。
+同じHTTPSのURLで、手入力、録音・再生、端末内英語音声の読み上げを使えます。面接官の音声は同梱ファイルを再生するので、端末への英語音声インストールは不要です。ChromeOSの音声入力を利用する場合はOS側で別途英語に設定してください。学校管理の端末では、マイクや保存が制限されることがあります。
 
 ### 共通の制限・代替手段
 
 - 録音にはHTTPS（PCではlocalhostも可）とマイク許可が必要です。未対応の場合も文字入力や声に出すだけの練習ができます。
 - MediaRecorderの対応状況から録音形式を選びます。録音中は移動、文字入力、読み上げを無効にしてマイク競合を抑えます。
 - 録音中は画面を開いたままにしてください。別画面への移動時は停止を試みますが、OSによる強制終了、着信、画面ロックで録音が失われる場合があります。
-- 読み上げは `localService === true` の英語音声のみ。端末内の音声がない場合はボタンを無効にし、テキストで案内します。
+- 既存5セットの面接官の音声は、開発PC内のMicrosoft Zira Desktopで生成したWAVを同梱しています。ボタンまたはブラウザ標準プレーヤーで再生します。外部の音声生成サービスは使用しません。ファイルのない追加問題だけは `localService === true` の英語音声で読み上げます。
 - キーボードの音声入力はOSの機能です。アプリから英語への切り替えや音声入力の終了を強制できません。OS側の音声処理が完全に端末内かどうかも保証できません。
 - SpeechRecognition APIは使用していません。録音からの文字起こしもありません。
 - 今回はPWAのインストール／オフラインキャッシュ機能を実装していません。SafariやChromeのブックマークから利用してください。初回・再読み込みにはページを取得する通信が必要です。
@@ -131,10 +135,11 @@ node server.cjs
 
 ### 必須の公開ファイル
 
-次の9ファイルを、リポジトリの同じ階層（直下）へ置きます。
+次の10ファイルをリポジトリ直下へ置き、assets/audioフォルダーも同じ階層に追加します。
 
 - `index.html`、`style.css`、`app.js`
-- `audio.js`、`data.js`、`illustrations.js`、`core.js`
+- `audio.js`、`data.js`、`illustrations.js`、`core.js`、`speech-assets.js`
+- `assets/audio/` 内の33個のWAV（フォルダー階層を保持）
 - `.nojekyll`、`.gitignore`
 
 READMEも公開して構いません。開発用の `server.cjs`、`test.cjs`、`flow-test.cjs` はGitで管理できるようにしていますが、アプリ配信には不要です。録音・エクスポートJSON・個人情報入りの記録・APIキー・`.env`・秘密鍵・ログ・スクリーンショットはアップロードしないでください。`.gitignore` はWeb画面で手動アップロードするファイルを保護しません。
@@ -143,7 +148,7 @@ READMEも公開して構いません。開発用の `server.cjs`、`test.cjs`、
 
 1. GitHubにサインインし、「+ → New repository」。リポジトリ名を `eiken-voice-check` などにします。
 2. 無料の公開リポジトリを使う場合はPublicを選び、READMEなどの自動作成は選ばずCreate repository。ソースもサイトも誰でも閲覧できます。家族限定ではありません。
-3. 空の画面の「uploading an existing file」、または「Add file → Upload files」から上の9ファイルを選び、`main` にコミットします。コミットは変更の保存です。フォルダーごとやZIPではなく、直下にファイルを置きます。
+3. 空の画面の「uploading an existing file」、または「Add file → Upload files」から上の10ファイルとassetsフォルダーを選び、`main` にコミットします。コミットは変更の保存です。フォルダーごとやZIPではなく、直下にファイルを置きます。
 4. リポジトリの「Settings → Pages」でSourceを「Deploy from a branch」、Branchを `main`、フォルダーを `/ (root)` にしてSave。ここで公開が始まります。Custom domainは空欄で構いません。
 5. 公開処理の完了後、Pages欄の「Visit site」または公開URLを確認します。Actionsで処理の成功・失敗を確認できます。
 6. Enforce HTTPSが有効か確認します。URLは通常 `https://ユーザー名.github.io/eiken-voice-check/` です。実際にはPages欄からコピーしてください。
@@ -151,7 +156,7 @@ READMEも公開して構いません。開発用の `server.cjs`、`test.cjs`、
 
 ### すでにPagesで公開している場合
 
-同じリポジトリの `main` へ、上の9ファイルを追加・更新してコミットします。**既存のPages公開設定が有効なら、ファイル更新だけで公開サイトも自動更新されます。** 公開許可後に行ってください。CSSとJavaScriptは相対パスなので、リポジトリ名をURLの一部として配信できます。
+同じリポジトリの `main` へ、上の10ファイルとassetsフォルダーを追加・更新してコミットします。**既存のPages公開設定が有効なら、ファイル更新だけで公開サイトも自動更新されます。** 公開許可後に行ってください。CSSとJavaScriptは相対パスなので、リポジトリ名をURLの一部として配信できます。
 
 404の場合は公開処理、直下の小文字の `index.html`、`main / (root)` とURLを確認します。画面が途中で止まる場合は追加の4つのJSファイルもアップロードしたか確認してください。
 
@@ -220,3 +225,27 @@ iPhone SafariとChromebook Chromeで、それぞれ記録してください。�
 - [MDN：Web Storageと例外処理](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API)
 - [GitHub：Pagesの公開元の設定](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 - [GitHub：HTTPS設定](https://docs.github.com/en/pages/getting-started-with-github-pages/securing-your-github-pages-site-with-https)
+
+## Windowsで面接官の英語が聞こえない場合
+
+練習画面の「読み上げの設定・音が出ないとき」を開き、「音声一覧を再確認」→英語音声を選択→「短い英文でテスト」を試してください。
+
+端末内の英語音声がない場合は、Windowsの「設定 → 時刻と言語 → 音声認識」の音声管理・追加、または英語の言語オプションの「音声合成」から英語音声を追加してください。表示名はWindowsの版で異なります。追加後はChrome／Edgeを開き直します。音声をインストールしてもブラウザに公開されない種類があります。このアプリの音声一覧に現れる端末内音声を利用してください。
+
+「読み上げ中」と出ても聞こえない場合はPCの音量、音量ミキサーのブラウザ音量、Bluetoothなどの出力先、タブのミュートを確認します。エラー時は括弧内のエラー名を確認してください。
+
+[Microsoftの音声追加の案内](https://support.microsoft.com/en-us/accessibility/windows/narrator/appendix-a-supported-languages-and-voices)
+
+読み上げ修正後の模擬テスト：最初は空の音声一覧からの再取得、端末内英語音声のみの選択、短文テスト、開始・終了イベント、エラーイベントと例外処理を確認しました。実際のスピーカー出力は未確認です。修正した公開用ファイルはindex.htmlとaudio.jsです。公開更新は行っていません。
+
+## 音声ファイル対応版への更新
+
+20261117-audio2では、Windows／iPhoneでの端末音声合成の差を避けるため、全質問・進行案内・短文テストを33個のPCM WAVにしました。英語音声は開発PC内で作成し、利用者の音声や回答は送信しません。配信先から静的音声ファイルを読み込む通信だけが発生します。
+
+公開許可後、index.html、app.js、audio.js、speech-assets.js、assets/audio内の33ファイルを更新してください。Gitで更新する場合は.gitignoreも更新します。現在の配布一式はrelease-audio2.zipです。ZIP自体をGitHubへ置くのではなく、展開した内容をアップロードします。READMEも同梱しています。
+
+画面上部に「音声ファイル対応版：20261117-audio2」がなければ旧版です。最新版ではボタンの下に標準プレーヤーがあります。公開後にページを再読み込みし、ボタンとプレーヤーの両方で確認してください。音声ファイルが不足している場合は画面に案内が出ます。
+
+追加問題で同梱音声を使うには、英文ごとのWAVをassets/audioへ置き、speech-assets.jsの対応表に追記します。全質問を同梱する場合はNo.2指示文と書き出し、No.4のWhy / Why notも対応させます。
+
+検証：33ファイルのPCMヘッダーと無音ではない波形、5セットの質問対応、音声合成が使えない状態での再生呼び出し、再生拒否・ファイル不足の案内、全20練習経路をテストしました。実機のスピーカーからの出力は未確認です。
