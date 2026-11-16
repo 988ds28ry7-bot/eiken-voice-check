@@ -8,17 +8,83 @@
   let audioUrl = null;
   let timerId = null;
   let utterance = null;
+  let speechWatchdog = null;
   const synth = window.speechSynthesis;
   const canRecord = window.isSecureContext && !!navigator.mediaDevices?.getUserMedia && typeof MediaRecorder !== "undefined";
   const status = (message) => { $("record-status").textContent = message; };
-  const localEnglishVoices = () => synth ? synth.getVoices().filter(v => v.localService && /^en(?:[-_]|$)/i.test(v.lang)) : [];
+  const speechSupported = !!synth && typeof SpeechSynthesisUtterance !== "undefined";
+  const voices = () => { try { return synth ? synth.getVoices() : []; } catch { return []; } };
+  const localEnglishVoices = () => voices().filter(v => v.localService === true && /^en(?:[-_]|$)/i.test(v.lang));
+  const voiceKey = v => JSON.stringify([v.voiceURI, v.name, v.lang]);
   function updateSpeech() {
-    const available = !!synth && typeof SpeechSynthesisUtterance !== "undefined" && localEnglishVoices().length > 0;
-    $("speak").disabled = !available || phase !== "idle";
-    if (!available) $("speech-status").textContent = "端末内の英語音声が見つかりません。表示された質問を読んで練習できます。";
-    else $("speech-status").textContent = "端末内の英語音声で読み上げます。音声入力を終了してから押してください。";
+    const available = localEnglishVoices();
+    const selected = $("speech-voice").value;
+    $("speech-voice").replaceChildren();
+    for (const voice of available) {
+      const option = document.createElement("option");
+      option.value = voiceKey(voice);
+      option.textContent = `${voice.name} (${voice.lang})`;
+      $("speech-voice").append(option);
+    }
+    if (available.some(v => voiceKey(v) === selected)) $("speech-voice").value = selected;
+    $("speech-voice").disabled = !available.length || phase !== "idle";
+    for (const id of ["speak", "speech-test", "speech-refresh"]) $(id).disabled = !speechSupported || phase !== "idle";
+    if (utterance) return;
+    if (!speechSupported) $("speech-status").textContent = "このブラウザは読み上げに対応していません。表示された英文で練習してください。";
+    else if (!available.length) $("speech-status").textContent = voices().length
+      ? "利用できる端末内の英語音声がありません。「読み上げの設定」を開き、英語の音声合成を追加してください。追加後はブラウザを開き直して音声一覧を再確認してください。"
+      : "音声一覧をまだ取得できていません。「面接官の英語を聞く」を押すと再確認します。繰り返す場合は「読み上げの設定」を確認してください。";
+    else $("speech-status").textContent = "端末内の英語音声を選択できます。音声入力を終了してから読み上げボタンを押してください。";
   }
-  function cancelSpeech() { if (synth) synth.cancel(); utterance = null; }
+  function cancelSpeech() {
+    clearTimeout(speechWatchdog);
+    const wasActive = utterance || synth?.speaking || synth?.pending;
+    utterance = null;
+    if (synth && wasActive) synth.cancel();
+  }
+  function speakText(text) {
+    if (!speechSupported || phase !== "idle") return;
+    cancelSpeech();
+    updateSpeech(); // Re-query on the user gesture even if voiceschanged never fired.
+    const available = localEnglishVoices();
+    const voice = available.find(v => voiceKey(v) === $("speech-voice").value) || available[0];
+    if (!voice || !text) return;
+    $("answer").blur();
+    $("audio").pause();
+    const current = new SpeechSynthesisUtterance(text);
+    utterance = current;
+    current.voice = voice;
+    current.lang = voice.lang;
+    current.rate = 0.9;
+    current.volume = 1;
+    current.onstart = () => {
+      if (utterance !== current) return;
+      clearTimeout(speechWatchdog);
+      $("speech-status").textContent = `読み上げ中：${voice.name}。聞こえない場合はPCの音量・出力先・タブのミュートを確認してください。`;
+    };
+    current.onend = () => {
+      if (utterance !== current) return;
+      clearTimeout(speechWatchdog); utterance = null;
+      $("speech-status").textContent = "読み上げが終了しました。もう一度聞く場合はボタンを押してください。";
+    };
+    current.onerror = event => {
+      if (utterance !== current) return;
+      clearTimeout(speechWatchdog); utterance = null;
+      $("speech-status").textContent = `読み上げに失敗しました（${event.error || "unknown"}）。別の英語音声を選ぶか、ブラウザを開き直して再試行してください。`;
+    };
+    $("speech-status").textContent = "読み上げの開始を待っています…";
+    speechWatchdog = setTimeout(() => {
+      if (utterance !== current) return;
+      cancelSpeech();
+      $("speech-status").textContent = "読み上げが開始されませんでした。別の音声でテストするか、ブラウザを開き直してください。";
+    }, 8000);
+    try {
+      if (synth.paused) synth.resume();
+      synth.speak(current); // Keep this synchronous with the click for Safari.
+    } catch (error) {
+      current.onerror({ error: error.name || "unknown" });
+    }
+  }
   function render() {
     const busy = phase !== "idle";
     $("text-mode").disabled = busy;
@@ -151,18 +217,11 @@
   $("stop").addEventListener("click", () => stopRecording());
   $("delete").addEventListener("click", () => { removeAudio(); window.InterviewApp.onDeleteRecording(); $("timer").textContent = "00:00"; status("録音を削除しました。"); });
   $("speak").addEventListener("click", () => {
-    const voice = localEnglishVoices()[0];
-    if (!voice || phase !== "idle") return;
-    cancelSpeech();
-    $("answer").blur();
-    $("audio").pause();
-    utterance = new SpeechSynthesisUtterance(window.InterviewApp.prompt());
-    utterance.voice = voice;
-    utterance.lang = voice.lang;
-    utterance.rate = 0.9;
-    utterance.onerror = (event) => { if (!["canceled", "interrupted"].includes(event.error)) $("speech-status").textContent = "読み上げができませんでした。表示された質問を読んでください。"; };
-    synth.speak(utterance);
+    speakText(window.InterviewApp.prompt());
   });
+  $("speech-test").addEventListener("click", () => speakText("Hello. Let's practice English together."));
+  $("speech-refresh").addEventListener("click", () => { if (phase === "idle") { cancelSpeech(); updateSpeech(); } });
+  $("speech-voice").addEventListener("change", cancelSpeech);
   $("answer").addEventListener("focus", cancelSpeech);
   $("audio").addEventListener("play", () => { cancelSpeech(); if (phase !== "idle") $("audio").pause(); });
   $("audio").addEventListener("error", () => status("音声を再生できませんでした。録り直すか、別のブラウザでお試しください。"));
