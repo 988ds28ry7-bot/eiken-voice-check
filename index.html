@@ -3,11 +3,11 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="theme-color" content="#176b58"><meta name="description" content="英検2級の面接を一人で練習。オリジナル5セット、録音、模範解答、端末内の復習履歴。">
-<title>英検2級 面接ノート</title><link rel="stylesheet" href="style.css">
-<script src="data.js" defer></script><script src="illustrations.js" defer></script><script src="core.js" defer></script><script src="speech-assets.js?v=20261117-audio2" defer></script><script src="app.js?v=20261117-audio2" defer></script><script src="audio.js?v=20261117-audio2" defer></script>
+<title>英検2級 面接ノート</title><link rel="stylesheet" href="style.css?v=20261117-reading1">
+<script src="data.js" defer></script><script src="illustrations.js" defer></script><script src="core.js" defer></script><script src="speech-assets.js?v=20261117-reading1" defer></script><script src="app.js?v=20261117-reading1" defer></script><script src="audio.js?v=20261117-reading1" defer></script>
 </head><body><main>
 <header class="app-header"><a href="#" id="brand">面接ノート <span>英検2級</span></a><button id="history-nav" class="quiet">復習・履歴</button></header>
-<p class="hint">音声ファイル対応版：20261117-audio2</p>
+<p class="hint">教材を見ながら回答する版：20261117-reading1</p>
 <p id="storage-status" class="notice" role="status"></p>
 <section id="home">
 <div class="hero"><span class="eyebrow">ONE QUESTION AT A TIME</span><h1>ひとつずつ、<br>自分の言葉で。</h1><p>話して、聞き返して、少しずつ。<br>今日の面接練習をはじめよう。</p><span class="pill">オリジナル5セット・自動採点なし</span></div>
@@ -21,13 +21,16 @@
 <div id="countdown-box" hidden><strong id="countdown">20</strong><span>秒</span><button id="timer-start">20秒を開始</button><p id="timer-status" role="status">説明を確認してから開始してください。</p></div>
 <div id="branch" hidden><p>まず Yes / No を答え、続く質問に理由を述べましょう。</p><div class="actions"><button id="yes" class="secondary" aria-pressed="false">Yes</button><button id="no" class="secondary" aria-pressed="false">No</button></div></div>
 </div>
-<section id="question-card" class="card" aria-label="問題カード"><div class="section-top"><span class="eyebrow">QUESTION CARD</span><span>オリジナル教材</span></div><h2 id="passage-title" lang="en"></h2><p id="passage" class="passage" lang="en"></p><div id="illustrations" class="illustrations"></div><p class="hint">Begin your story with this sentence:</p><p id="opening" lang="en"></p></section>
+<button id="open-workspace" class="secondary wide" hidden>教材を見ながら回答する</button>
+<div id="answer-workspace" aria-label="教材と回答"><div id="workspace-toolbar" hidden><div><strong>教材を見ながら回答</strong><span>教材側だけをスクロールできます</span></div><button id="close-workspace" class="quiet">通常表示へ</button></div>
+<section id="question-card" class="card" aria-label="問題カード"><div class="section-top"><span class="eyebrow">QUESTION CARD</span><span>オリジナル教材</span></div><h2 id="passage-title" lang="en"></h2><p id="passage" class="passage" lang="en"></p><div id="illustrations" class="illustrations"></div><p id="opening-label" class="hint">Begin your story with this sentence:</p><p id="opening" lang="en"></p></section>
 <div id="card-back" class="card card-back" hidden>問題カードは裏返しました。<br><small>ここからは自分の考えを話しましょう。</small></div>
 <section id="answer-area" class="card" hidden><h2>あなたの回答</h2>
 <div class="mode-switch" role="group" aria-label="回答方法"><button id="text-mode" aria-pressed="true">文字・音声入力</button><button id="record-mode" aria-pressed="false">録音で回答</button></div>
-<div id="text-panel"><label for="answer">英文回答・復習メモ</label><textarea id="answer" lang="en-US" rows="5" maxlength="5000" inputmode="text" autocapitalize="sentences" autocomplete="off" spellcheck="true" placeholder="I think…"></textarea><p class="hint">iPhone：英語キーボードに切り替え、キーボードのマイクで音声入力できます。英文は修正できます。録音へ移る前に音声入力を終了してください。</p></div>
+<p id="workspace-question" lang="en" hidden></p><div id="text-panel"><label for="answer">英文回答・復習メモ</label><textarea id="answer" lang="en-US" rows="5" maxlength="5000" inputmode="text" autocapitalize="sentences" autocomplete="off" spellcheck="true" aria-describedby="answer-help" placeholder="I think…"></textarea><p id="answer-help" class="hint">教材がある問題では、入力欄を選ぶと教材と回答を同時表示します。iPhone：英語キーボードに切り替え、キーボードのマイクで音声入力できます。英文は修正できます。録音へ移る前に音声入力を終了してください。</p></div>
 <div id="record-panel" hidden><p class="instruction">キーボードの音声入力を終了してから録音します。</p><p id="record-support" class="hint"></p><div class="record-display"><span id="record-indicator" aria-hidden="true"></span><span id="record-state"></span><time id="timer">00:00</time></div><div class="actions"><button id="start">● 録音開始</button><button id="stop" class="secondary" disabled>■ 録音停止</button></div><p id="record-status" role="status" class="hint">録音は最長2分。音声は練習中だけ保持し、履歴には保存しません。</p><div id="playback" hidden><audio id="audio" controls preload="metadata"></audio><button id="delete" class="quiet">この録音を削除</button></div></div>
 <p class="hint">録音は自動で文字になりません。残したい内容は文字欄にも入力してください。</p></section>
+</div>
 <button id="next" class="wide">次へ →</button>
 </section>
 <section id="review" hidden><span class="eyebrow">LOOK BACK & TRY AGAIN</span><h1 tabindex="-1" id="review-heading">今日の振り返り</h1><p>模範解答は一例です。自分の意見と理由を伝えられたか確認しましょう。自己評価は合否や公式の点数ではありません。</p><div id="review-items"></div><button id="finish" class="wide">振り返りを保存してホームへ</button></section>

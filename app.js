@@ -10,11 +10,42 @@
  function persist(){if(readonlyStorage)return;try{localStorage.setItem(key,JSON.stringify(C.envelope(records)));notice('回答・自己評価をこのブラウザに保存しました。');}catch{notice('端末に保存できません。ページを閉じる前に「復習・履歴」からエクスポートしてください。');}}
  const set=()=>sets.find(s=>s.id===active.setId);
  const stage=()=>C.flows[active.mode][active.stage];
+ let workspaceOpen=false;
+ const workspaceEligible=()=>!!active&&screen==='practice'&&['read','q1','q2'].includes(stage());
+ function fitWorkspace(){
+  if(!workspaceOpen)return;
+  const viewport=window.visualViewport;
+  const panel=$('answer-workspace');
+  panel.style.setProperty('--workspace-top',`${viewport?.offsetTop||0}px`);
+  panel.style.setProperty('--workspace-left',`${viewport?.offsetLeft||0}px`);
+  panel.style.setProperty('--workspace-height',`${viewport?.height||window.innerHeight}px`);
+  panel.style.setProperty('--workspace-width',`${viewport?.width||window.innerWidth}px`);
+ }
+ function openWorkspace(){
+  if(!workspaceEligible())return;
+  workspaceOpen=true;
+  $('answer-workspace').classList.toggle('reading-workspace',true);
+  document.body.classList.toggle('workspace-open',true);
+  $('workspace-toolbar').hidden=false;
+  $('answer-workspace').setAttribute('data-stage',stage());
+  $('workspace-question').hidden=stage()!=='q1';
+  $('workspace-question').textContent=stage()==='q1'?set().q1.prompt:'';
+  fitWorkspace();
+ }
+ function closeWorkspace(blur=false){
+  if(!workspaceOpen)return;
+  if(blur)$('answer').blur();
+  workspaceOpen=false;
+  $('answer-workspace').classList.toggle('reading-workspace',false);
+  document.body.classList.toggle('workspace-open',false);
+  $('workspace-toolbar').hidden=true;
+  $('workspace-question').hidden=true;
+ }
  function answer(name=stage()){return active.answers[name]??=(C.emptyAnswer());}
  function save(){if(!active)return;active.updated=new Date().toISOString();persist();}
  function stopClock(){clearInterval(clock);clock=null;}
  function cleanReviewAudio(){reviewUrls.forEach(URL.revokeObjectURL);reviewUrls=[];document.querySelectorAll('#review audio').forEach(a=>a.pause());}
- function show(name){screen=name;['home','practice','review','history'].forEach(id=>$(id).hidden=id!==name);$('history-nav').disabled=false;window.scrollTo(0,0);}
+ function show(name){closeWorkspace(true);screen=name;['home','practice','review','history'].forEach(id=>$(id).hidden=id!==name);$('history-nav').disabled=false;window.scrollTo(0,0);}
  function home(){stopClock();window.VoiceLab?.reset();cleanReviewAudio();show('home');const draft=records.find(r=>!r.complete);$('resume').hidden=!draft;}
  function start(mode,setId){if(records.length>=500){notice('履歴の上限500件に達しました。バックアップ後、履歴から不要な練習を削除してください。');return;}active={id:globalThis.crypto?.randomUUID?.()||`r-${Date.now()}-${Math.random().toString(36).slice(2)}`,setId,mode,stage:0,complete:false,updated:new Date().toISOString(),answers:{}};records.unshift(active);save();renderStage();}
  const staticSteps={
@@ -37,6 +68,7 @@
   const front=['card','silent','read','q1','prepare','q2'].includes(st);$('question-card').hidden=!front;$('card-back').hidden=!['flip','q3','q4','close'].includes(st);
   $('passage-title').textContent=s.title;$('passage').textContent=s.passage;$('opening').textContent=s.opening;$('illustrations').innerHTML=window.Illustrations.render(s);
   $('answer-area').hidden=!isAnswer;$('answer').value=isAnswer?answer().text:'';$('branch').hidden=st!=='q4';
+  $('open-workspace').hidden=!workspaceEligible();
   for(const choice of ['yes','no'])$(choice).setAttribute('aria-pressed',String(st==='q4'&&answer().choice===choice));
   $('countdown-box').hidden=!timed;$('countdown').textContent='20';$('timer-start').disabled=false;$('timer-status').textContent='説明を確認してから開始してください。';
   $('next').disabled=timed||(st==='q4'&&!answer().choice);$('next').textContent=st==='close'?'振り返りへ →':'次へ →';window.VoiceLab?.prepare(prompt());$('stage-title').focus();
@@ -67,6 +99,17 @@
  $('resume').addEventListener('click',()=>{active=records.find(r=>!r.complete);if(active)renderStage();});
  $('next').addEventListener('click',()=>{if(busy()||$('next').disabled)return;active.stage++;save();renderStage();});
  $('answer').addEventListener('input',()=>{if(active&&C.answerKeys.includes(stage())){answer().text=$('answer').value;save();}});
+ // Keep the original textarea and card mounted: moving or replacing a focused
+ // input can stop iOS dictation. Only change the surrounding layout.
+ $('answer').addEventListener('pointerdown',openWorkspace);
+ $('answer').addEventListener('focus',openWorkspace);
+ $('open-workspace').addEventListener('click',openWorkspace);
+ $('record-mode').addEventListener('click',openWorkspace);
+ $('close-workspace').addEventListener('click',()=>{if(!busy()){closeWorkspace(true);$('open-workspace').focus({preventScroll:true});}});
+ document.addEventListener('keydown',event=>{if(event.key==='Escape'&&workspaceOpen&&!busy()){closeWorkspace(true);$('open-workspace').focus({preventScroll:true});}});
+ window.visualViewport?.addEventListener('resize',fitWorkspace);
+ window.visualViewport?.addEventListener('scroll',fitWorkspace);
+ window.addEventListener('resize',fitWorkspace);
  for(const choice of ['yes','no'])$(choice).addEventListener('click',()=>{if(busy())return;window.VoiceLab?.silence();answer().choice=choice;save();for(const ch of ['yes','no'])$(ch).setAttribute('aria-pressed',String(ch===choice));$('prompt').textContent=set().q4.prompt+' '+(choice==='yes'?'Yes. ':'No. ')+set().q4[choice];$('next').disabled=false;window.VoiceLab?.prepare(prompt());});
  $('timer-start').addEventListener('click',startTimer);
  $('leave').addEventListener('click',()=>{if(!busy()){save();home();}});
@@ -77,6 +120,6 @@
  $('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(C.envelope(records),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=make('a');a.href=url;a.download='interview-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);$('transfer-status').textContent='バックアップを作成しました。端末のダウンロード先を確認してください。音声は含まれません。';});
  $('import-file').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>50000000)throw Error('ファイルが大きすぎます（上限50MB）。');const incoming=C.validate(JSON.parse(await file.text()),sets);records=C.merge(records,incoming.records);persist();renderHistory();$('transfer-status').textContent=`${incoming.records.length}件の取り込み処理が完了しました。重複は現在の履歴を優先します。上部の保存状況も確認してください。`;}catch(err){$('transfer-status').textContent='取り込めませんでした。現在の履歴は変更していません。'+(err instanceof SyntaxError?'JSON形式のバックアップを選んでください。':err.message);}finally{e.target.value='';}});
  document.addEventListener('visibilitychange',()=>{if(document.hidden&&clock){stopClock();$('countdown').textContent='20';$('timer-start').disabled=false;$('timer-status').textContent='画面を離れたため停止しました。20秒をもう一度開始してください。';$('next').disabled=true;}});
- window.InterviewApp={prompt,onRecording:blob=>{if(active)clips.set(active.id+':'+stage(),blob);},onDeleteRecording:()=>{if(active)clips.delete(active.id+':'+stage());},onBusy:locked=>{$('leave').disabled=locked;$('history-nav').disabled=locked;for(const id of ['yes','no','timer-start'])$(id).disabled=locked;},canNext:()=>!!active&&!['silent','prepare'].includes(stage())&&(stage()!=='q4'||!!answer().choice)};
+ window.InterviewApp={prompt,onRecording:blob=>{if(active)clips.set(active.id+':'+stage(),blob);},onDeleteRecording:()=>{if(active)clips.delete(active.id+':'+stage());},onBusy:locked=>{$('leave').disabled=locked;$('history-nav').disabled=locked;$('close-workspace').disabled=locked;for(const id of ['yes','no','timer-start'])$(id).disabled=locked;},canNext:()=>!!active&&!['silent','prepare'].includes(stage())&&(stage()!=='q4'||!!answer().choice)};
  home();
 })();
